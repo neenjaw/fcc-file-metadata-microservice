@@ -1,23 +1,41 @@
-'use strict';
+const express = require('express')
+const cors = require('cors')
+const multer  = require('multer')
+const upload = multer({ dest: 'uploads/' })
 
-var express = require('express');
-var cors = require('cors');
+const app = express()
 
-// require and use "multer"...
+app.use(cors())
+app.use('/public', express.static(process.cwd() + '/public'))
 
-var app = express();
+app.get('/', (req, res) => {
+     res.sendFile(process.cwd() + '/views/index.html')
+  })
 
-app.use(cors());
-app.use('/public', express.static(process.cwd() + '/public'));
+app.get('/hello', (req, res) => {
+  res.json({greetings: "Hello, API"})
+}),
 
-app.get('/', function (req, res) {
-     res.sendFile(process.cwd() + '/views/index.html');
-  });
+app.post('/api/fileanalyse', upload.single('upfile'), (req, res) => {
+  const response = {
+    name: req.file.originalname,
+    mimetype: req.file.mimetype,
+    size: req.file.size
+  }
 
-app.get('/hello', function(req, res){
-  res.json({greetings: "Hello, API"});
-});
+  console.log(response)
+  res.json(response)
+})
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log('Node.js listening ...');
-});
+app.listen(3000, function () {
+  console.log('Node.js listening ...')
+})
+
+
+/* JSON response
+{
+  "name": "deno.png",    // filename
+  "type": "image/png",   // mime/type
+  "size": 9085           // file size in bytes
+}
+*/
